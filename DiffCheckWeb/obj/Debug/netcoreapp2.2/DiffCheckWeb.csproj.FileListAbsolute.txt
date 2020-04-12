@@ -1,0 +1,10 @@
+D:\DiffCheckWeb\DiffCheckWeb\obj\Debug\netcoreapp2.2\DiffCheckWeb.AssemblyInfoInputs.cache
+D:\DiffCheckWeb\DiffCheckWeb\obj\Debug\netcoreapp2.2\DiffCheckWeb.AssemblyInfo.cs
+D:\DiffCheckWeb\DiffCheckWeb\bin\Debug\netcoreapp2.2\appsettings.Development.json
+D:\DiffCheckWeb\DiffCheckWeb\bin\Debug\netcoreapp2.2\appsettings.json
+D:\DiffCheckWeb\DiffCheckWeb\bin\Debug\netcoreapp2.2\Properties\launchSettings.json
+D:\DiffCheckWeb\DiffCheckWeb\bin\Debug\netcoreapp2.2\DiffCheckWeb.deps.json
+D:\DiffCheckWeb\DiffCheckWeb\bin\Debug\netcoreapp2.2\DiffCheckWeb.runtimeconfig.json
+D:\DiffCheckWeb\DiffCheckWeb\bin\Debug\netcoreapp2.2\DiffCheckWeb.runtimeconfig.dev.json
+D:\DiffCheckWeb\DiffCheckWeb\bin\Debug\netcoreapp2.2\DiffCheckWeb.dll
+D:\DiffCheckWeb\DiffCheckWeb\obj\Debug\netcoreapp2.2\DiffCheckWeb.csprojAssemblyReference.cache

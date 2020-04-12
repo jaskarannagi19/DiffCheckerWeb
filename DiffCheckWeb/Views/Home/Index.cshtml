@@ -14,132 +14,289 @@
         A post-diff cleanup algorithm factors out these trivial commonalities.
     </P>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
-
+    <script src="~/lib/codemirror.js"></script>
+    <link href="~/lib/codemirror.css" rel="stylesheet" />
     <script src="~/js/diff_match_patch_uncompressed.js"></script>
-
+    <script src="~/lib/javascript.js"></script>
+    <style>
+        li{
+            list-style:decimal;
+        }
+    </style>
     <SCRIPT>
-
-
-
-
-
-
-
-
-
-
-        var addition = 0;
-        var _delete = 0;
-
-        diff_prettyHtml = function (diffs) {
-            var html = [];
-            var pattern_amp = /&/g;
-            var pattern_lt = /</g;
-            var pattern_gt = />/g;
-            var pattern_para = /\n/g;
-            for (var x = 0; x < diffs.length; x++) {
-                debugger;
-                var op = diffs[x]['operation'];    // Operation (insert, delete, equal)
-                var data = diffs[x]['text'];  // Text of change.
-                var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
-                    .replace(pattern_gt, '&gt;').replace(pattern_para, '&para;<br>');
-                switch (op) {
-                    //case DIFF_INSERT:
-                    //  html[x] = '<ins style="background:#e6ffe6;">' + text + '</ins>';
-                    //  break;
-                    case DIFF_DELETE:
-                        html[x] = '<del style="background:red;">' + text + '</del>';
-                        _delete += 1
-                        break;
-                    case DIFF_EQUAL:
-                        html[x] = '<span>' + text + '</span>';
-                        break;
-                }
-            }
-            return html.join('');
-        };
-
-
-
-
-        diff_prettyHtml1 = function (diffs) {
-            var html = [];
-            var pattern_amp = /&/g;
-            var pattern_lt = /</g;
-            var pattern_gt = />/g;
-            var pattern_para = /\n/g;
-            for (var x = 0; x < diffs.length; x++) {
-                debugger;
-                var op = diffs[x]['operation'];    // Operation (insert, delete, equal)
-                var data = diffs[x]['text'];  // Text of change.
-                var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
-                    .replace(pattern_gt, '&gt;').replace(pattern_para, '&para;<br>');
-                switch (op) {
-                    case DIFF_INSERT:
-                        html[x] = '<ins style="background:green;">' + text + '</ins>';
-                        addition += 1;
-                        break;
-                    //case DIFF_DELETE:
-                    //    html[x] = '<del style="background:#ffe6e6;">' + text + '</del>';
-                    //    break;
-                    case DIFF_EQUAL:
-                        html[x] = '<span>' + text + '</span>';
-                        break;
-                }
-            }
-            return html.join('');
-        };
-
-
-
-
-        function escapeXML(string){
-
-    var str = string;
-    str = str.replace(/\&/g,"&amp;");
-    str = str.replace(/\>/g,"&gt;");
-    str = str.replace(/\</g,"&lt;");
-    str = str.replace(/\"/g,"&quot;");
-    str = str.replace(/\'/g,"&apos;");
-
-    return str;
-}
-
-
-
-
-        function launch() {
-            var text1 = document.getElementById('text1').value;
-            var text2 = document.getElementById('text2').value;
-
-            var processText1 = escapeXML(text1);
-            var processText2 = escapeXML(text2);
-            var textdata = '<JobModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><JobClass><Job><title>' + processText1 + '</title><description></description></Job><Job><title>' + processText2 + '</title><description></description></Job></JobClass></JobModel>';
-            debugger;
-            $.ajax({
-                url: "../../Home/Diff",
-                type: "POST",
-                processData: false,
-                data: textdata,
-                contentType: "text/xml",
-                success: function (response, textStatus, jqXHR) {
-                    debugger;
-                    var obj = JSON.parse(response);
-                    var d = obj;
-                    var ds = diff_prettyHtml(d);
-                    var newText = diff_prettyHtml1(d);
-
-                    document.getElementById('outputdiv').innerHTML = ds
-                    document.getElementById('newdiv').innerHTML = newText
-                    document.getElementById('addition').innerHTML = addition
-                    document.getElementById('delete').innerHTML = _delete
-
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-
-                }
+        $(document).ready(function () {
+            var myCodeMirror1 = CodeMirror.fromTextArea(document.getElementById('text1'), {
+                lineNumbers: true
             });
-        };
+
+            var myCodeMirror2 = CodeMirror.fromTextArea(document.getElementById('text2'), {
+                lineNumbers: true
+            });
+
+            myCodeMirror2.setSize(300, 300)
+            myCodeMirror1.setSize(300,300)
+           
+            var addition = 0;
+            var _delete = 0;
+
+            diff_prettyHtml = function (obj) {
+                var mainDiv = document.createElement("div") //main outer container div top most
+                        var appendTosameElement = false;
+
+                var stillsame = false;
+                        var preId = 0;
+
+                        for (var i = 0; i < obj.length; i++) {
+
+                            var operation = obj[i]['operation'];
+                            var text = obj[i]['text'];
+
+                            debugger;
+                            alreadyIncluded = false;
+                            if (operation == "0") {
+                                _delete +=1
+                            }
+                            if (operation != "10") {
+                            var para = document.createElement("li");
+                            para.id = i;
+
+                            var pattern_amp = /&/g;
+                            var pattern_lt = /</g;
+                            var pattern_gt = />/g;
+                                var pattern_para = /\n/g;
+
+
+                            var text = text.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;').replace(pattern_gt, '&gt;').replace(pattern_para, '<br>');
+                            var listOfText = [];
+
+                            if (text.includes("<br>") == true) {
+                                listOfText = text.split("<br>")
+                                appendTosameElement = true;
+                                
+                                
+                                for (var j = 0; j < listOfText.length; j++) {
+                                    para = document.getElementById(preId);
+                                    if (appendTosameElement) {
+                                        if (operation == "1") {
+                                            para.style.cssText='color:transparent; background:grey'
+                                        }
+                                        para.innerHTML += listOfText[j];
+                                        appendTosameElement = false;//ethe v kuch lao
+                                        stillsame = true;
+                                        
+                                    } else {
+                                        preId = preId + 1;
+                                        
+
+                                        var updateLi = document.createElement("li");
+                                        updateLi.id = preId;
+                                        updateLi.innerHTML = listOfText[j];
+                                        document.getElementById('outputdiv').appendChild(updateLi);
+
+                                        alreadyIncluded = true;
+                                    }
+                                }
+
+
+                            }
+
+
+                                if (appendTosameElement && !alreadyIncluded && operation != "1" && !stillsame) {
+
+                                para = document.getElementById(preId);
+                                para.innerHTML += '<span style="background:red">'+text+'</span>';
+                                appendTosameElement = true;
+                                }
+
+                                if (appendTosameElement && !alreadyIncluded && operation == "1" && !stillsame) {
+
+                                para = document.getElementById(preId);
+                                para.innerHTML += '<span style="color:transparent; background:grey">'+text+'</span>';
+                                appendTosameElement = true;
+                            }
+
+
+                                if (operation == '2' && appendTosameElement == false && alreadyIncluded == false && !stillsame) {
+                                para.innerHTML += text;
+                                document.getElementById('outputdiv').appendChild(para);
+                                appendTosameElement = true;
+                                }
+                                if (operation == '0' && appendTosameElement == false && alreadyIncluded == false && !stillsame) {
+                                para.innerHTML += '<span style="background:red">'+text+'</span>';
+                                document.getElementById('outputdiv').appendChild(para);
+                                appendTosameElement = true;
+                                }
+
+                                if (operation == '0' && appendTosameElement == false && alreadyIncluded == false && stillsame) {
+                                    para = document.getElementById(preId);
+                                    para.innerHTML += '<span style="background:red">'+text+'</span>';
+                                    appendTosameElement = true;
+                                    stillsame = false;
+
+                            }
+
+                            }
+                        }
+            };
+
+
+
+
+            diff_prettyHtml1 = function (obj) {
+                var mainDiv = document.createElement("div") //main outer container div top most
+                        var appendTosameElement = false;
+                        var stillsame = false;
+                        var preId = 0;
+                        
+
+                        for (var i = 0; i < obj.length; i++) {
+
+                            var operation = obj[i]['operation'];
+                            var text = obj[i]['text'];
+
+                            if (operation == "1") {
+                            addition += 1
+                            }
+
+                            debugger;
+                            alreadyIncluded = false;
+                            if (operation != "0") {
+                            var para = document.createElement("li");
+                            para.id = i;
+
+                            var pattern_amp = /&/g;
+                            var pattern_lt = /</g;
+                            var pattern_gt = />/g;
+                                var pattern_para = /\n/g;
+
+
+                            var text = text.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;').replace(pattern_gt, '&gt;').replace(pattern_para, '<br>');
+                            var listOfText = [];
+
+                            if (text.includes("<br>") == true) {
+                                listOfText = text.split("<br>")
+                                appendTosameElement = true;
+                                
+                                
+                                for (var j = 0; j < listOfText.length; j++) {
+                                    para = document.getElementById(preId);
+                                    if (appendTosameElement) {
+                                        if (operation == "1") {
+                                            para.style.cssText='background:#6bdfb8'
+                                        }
+                                        para.innerHTML += listOfText[j];
+                                        appendTosameElement = false;
+                                        stillsame = true;
+                                    } else {
+                                        preId = preId + 1;
+                                        var newpara = document.createElement("li");
+                                        newpara.id = "leaveBank";
+                                        newpara.innerHTML += " ";
+                                        //document.getElementById('newdiv').appendChild(newpara);
+
+                                        var updateLi = document.createElement("li");
+                                        updateLi.id = preId;
+                                        updateLi.innerHTML = listOfText[j];
+                                        document.getElementById('newdiv').appendChild(updateLi);
+
+                                        alreadyIncluded = true;
+                                    }
+                                }
+
+
+                            }
+
+
+                            if (appendTosameElement && !alreadyIncluded) {
+
+                                para = document.getElementById(preId);
+                                para.innerHTML += '<span style="background:#6bdfb8">'+text+'</span>';
+                                appendTosameElement = true;
+                            }
+
+
+                            if (operation == '2' && appendTosameElement == false && alreadyIncluded == false && !stillsame) {
+                                para.innerHTML += text;
+                                document.getElementById('newdiv').appendChild(para);
+                                appendTosameElement = true;
+                                }
+                                if (operation == '1' && appendTosameElement == false && alreadyIncluded == false && !stillsame) {
+                                para.innerHTML += text;
+                                para.style.cssText = 'background:#6bdfb8'
+                                document.getElementById('newdiv').appendChild(para);
+                                appendTosameElement = true;
+                                }
+
+                                 if (operation == '1' && appendTosameElement == false && alreadyIncluded == false && stillsame) {
+                                    para = document.getElementById(preId);
+                                    para.innerHTML += '<span style="background:#6bdfb8">'+text+'</span>';
+                                    appendTosameElement = true;
+                                    stillsame = false;
+
+                            }
+
+                            }
+                        }
+            };
+
+
+
+
+            function escapeXML(string) {
+
+                var str = string;
+                str = str.replace(/\&/g, "&amp;");
+                str = str.replace(/\>/g, "&gt;");
+                str = str.replace(/\</g, "&lt;");
+                str = str.replace(/\"/g, "&quot;");
+                str = str.replace(/\'/g, "&apos;");
+
+                return str;
+            }
+
+            
+
+            $("#btnSubmit").click(launch);
+
+            function launch() {
+
+                
+                $("#newdiv").empty();
+                $('#outdiv').empty();
+
+                var text1 = myCodeMirror1.getValue();// document.getElementById('text1').value;
+                var text2 = myCodeMirror2.getValue();//document.getElementById('text2').value;
+
+                var processText1 = escapeXML(text1);
+                var processText2 = escapeXML(text2);
+                var textdata = '<JobModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><JobClass><Job><title>' + processText1 + '</title><description></description></Job><Job><title>' + processText2 + '</title><description></description></Job></JobClass></JobModel>';
+                debugger;
+                $.ajax({
+                    url: "../../Home/ComputeDiff",
+                    type: "POST",
+                    processData: false,
+                    data: textdata,
+                    contentType: "text/xml",
+                    success: function (response, textStatus, jqXHR) {
+                        
+                        
+                        var obj = JSON.parse(response);
+                        diff_prettyHtml1(obj);
+                        diff_prettyHtml(obj);
+
+                        document.getElementById('addition').innerHTML = addition
+                        document.getElementById('delete').innerHTML = _delete
+
+
+
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                    }
+                });
+            };
+
+        });
     </SCRIPT>
 
     <FORM action="#" onsubmit="return false">
@@ -156,17 +313,13 @@
             </TR>
         </TABLE>
 
-
-
-
-
-
-        <P><INPUT TYPE="button" onClick="launch()" VALUE="Compute Diff"></P>
+        <P><INPUT id="btnSubmit" TYPE="button"  VALUE="Compute Diff"></P>
     </FORM>
 
     <div class="row">
 
-        <div class="col-md-6"><span id="delete"></span>Deletions</div>
+        <div class="col-md-6">
+        <span id="delete"></span>Deletions</div>
         <div class="col-md-6">
             <span id="addition"></span> Additions
         </div>
@@ -174,14 +327,20 @@
 
     </div>
 
-    
+
     <div class="row">
-        <DIV ID="outputdiv" class="col-md-6"></DIV>
+        <div class="col-md-6">
+            <ul ID="outputdiv"></ul>
+            
+        </div>
 
-        <DIV ID="newdiv" class="col-md-6"></DIV>
-    </div>
+        <div class="col-md-6">
+            <ul ID="newdiv" ></ul>
+                </div>
+            </div>
+        
 
-    <HR>
+        <HR>
 
 
 </BODY>

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using DiffCheckWeb.Models;
 using DiffMatchPatch;
 using Newtonsoft.Json;
@@ -13,15 +12,22 @@ namespace DiffCheckWeb.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
+            return View();
+        }
+
+        public IActionResult About()
+        {
+            ViewData["Message"] = "Your application description page.";
+
+            return View();
+        }
+
+        public IActionResult Contact()
+        {
+            ViewData["Message"] = "Your contact page.";
+
             return View();
         }
 
@@ -30,9 +36,11 @@ namespace DiffCheckWeb.Controllers
             return View();
         }
 
-        public JsonResult Diff([FromBody]JobModel jobList)//MAPPING CH PROBLEM
+
+        public JsonResult ComputeDiff([FromBody]JobModel jobList)//MAPPING CH PROBLEM
         {
 
+             
             List<Diff> diff = new List<Diff>();
             List<Diff> result = new List<Diff>();
             diff_match_patch dmp = new diff_match_patch();
@@ -44,7 +52,7 @@ namespace DiffCheckWeb.Controllers
             string newDescription = jobList.JobClass[1].description;
 
 
-            diff = dmp.diff_main(title, newTitle);
+            diff = dmp.diff_main(title, newTitle,false);
             dmp.diff_cleanupSemantic(diff);
 
 
@@ -55,7 +63,7 @@ namespace DiffCheckWeb.Controllers
             }
 
             //Compare description
-            diff = dmp.diff_main(oldDescription, newDescription);
+            diff = dmp.diff_main(oldDescription, newDescription, false);
             dmp.diff_cleanupSemantic(diff);
             for (int j = 0; j < diff.Count; j++)
             {
@@ -65,6 +73,8 @@ namespace DiffCheckWeb.Controllers
 
             return Json(output);
         }
+
+
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
